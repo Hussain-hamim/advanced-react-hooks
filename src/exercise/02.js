@@ -139,3 +139,6 @@ function AppWithUnmountCheckbox() {
 }
 
 export default AppWithUnmountCheckbox
+
+// memoization is a form of caching
+// memoization is value referential equality
