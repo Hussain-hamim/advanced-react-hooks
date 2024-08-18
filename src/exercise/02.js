@@ -1,6 +1,6 @@
 // useCallback: custom hooks
-// 💯 return a memoized `run` function from useAsync
-// http://localhost:3000/isolated/final/02.extra-2.js
+// 💯 make safeDispatch with useCallback, useRef, and useEffect
+// http://localhost:3000/isolated/final/02.extra-3.js
 
 import * as React from 'react'
 import {
@@ -10,6 +10,27 @@ import {
   PokemonInfoFallback,
   PokemonErrorBoundary,
 } from '../pokemon'
+
+function useSafeDispatch(dispatch) {
+  const mountedRef = React.useRef(false)
+
+  // to make this even more generic you should use the useLayoutEffect hook to
+  // make sure that you are correctly setting the mountedRef.current immediately
+  // after React updates the DOM. Even though this effect does not interact
+  // with the dom another side effect inside a useLayoutEffect which does
+  // interact with the dom may depend on the value being set
+  React.useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  return React.useCallback(
+    (...args) => (mountedRef.current ? dispatch(...args) : void 0),
+    [dispatch],
+  )
+}
 
 function asyncReducer(state, action) {
   switch (action.type) {
@@ -29,26 +50,31 @@ function asyncReducer(state, action) {
 }
 
 function useAsync(initialState) {
-  const [state, dispatch] = React.useReducer(asyncReducer, {
+  const [state, unsafeDispatch] = React.useReducer(asyncReducer, {
     status: 'idle',
     data: null,
     error: null,
     ...initialState,
   })
 
+  const dispatch = useSafeDispatch(unsafeDispatch)
+
   const {data, error, status} = state
 
-  const run = React.useCallback(promise => {
-    dispatch({type: 'pending'})
-    promise.then(
-      data => {
-        dispatch({type: 'resolved', data})
-      },
-      error => {
-        dispatch({type: 'rejected', error})
-      },
-    )
-  }, [])
+  const run = React.useCallback(
+    promise => {
+      dispatch({type: 'pending'})
+      promise.then(
+        data => {
+          dispatch({type: 'resolved', data})
+        },
+        error => {
+          dispatch({type: 'rejected', error})
+        },
+      )
+    },
+    [dispatch],
+  )
 
   return {
     error,
@@ -72,8 +98,7 @@ function PokemonInfo({pokemonName}) {
     if (!pokemonName) {
       return
     }
-    const pokemonPromise = fetchPokemon(pokemonName)
-    run(pokemonPromise)
+    run(fetchPokemon(pokemonName))
   }, [pokemonName, run])
 
   switch (status) {
