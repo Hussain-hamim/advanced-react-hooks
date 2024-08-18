@@ -1,39 +1,34 @@
-// useCallback: custom hooks
-// http://localhost:3000/isolated/final/02.js
-
 import * as React from 'react'
 import {
   fetchPokemon,
+  PokemonErrorBoundary,
+  PokemonInfoFallback,
   PokemonForm,
   PokemonDataView,
-  PokemonInfoFallback,
-  PokemonErrorBoundary,
 } from '../pokemon'
 
 function asyncReducer(state, action) {
   switch (action.type) {
-    case 'pending': {
+    case 'pending':
       return {status: 'pending', data: null, error: null}
-    }
-    case 'resolved': {
+      break
+    case 'resolved':
       return {status: 'resolved', data: action.data, error: null}
-    }
-    case 'rejected': {
+      break
+    case 'rejected':
       return {status: 'rejected', data: null, error: action.error}
-    }
-    default: {
+      break
+    default:
       throw new Error(`Unhandled action type: ${action.type}`)
-    }
   }
 }
 
 function useAsync(asyncCallback, initialState, dependencies) {
-  const [state, dispatch] = React.useReducer(asyncReducer, {
-    status: 'idle',
-    data: null,
-    error: null,
-    ...initialState,
-  })
+  const [state, dispatch] = useReducer(
+    asyncReducer,
+    {status: 'idle', data: null, error: null, ...initialState},
+    third,
+  )
 
   React.useEffect(() => {
     const promise = asyncCallback()
@@ -46,61 +41,56 @@ function useAsync(asyncCallback, initialState, dependencies) {
       data => {
         dispatch({type: 'resolved', data})
       },
-      error => {
-        dispatch({type: 'rejected', error})
-      },
+      error => dispatch({type: 'rejected', error}),
     )
-    // too bad the eslint plugin can't statically analyze this :-(
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies)
+  }, [dependencies])
 
   return state
 }
 
 function PokemonInfo({pokemonName}) {
-  const state = useAsync(
-    () => {
-      if (!pokemonName) {
-        return
-      }
-      return fetchPokemon(pokemonName)
-    },
-    {status: pokemonName ? 'pending' : 'idle'},
-    [pokemonName],
-  )
+  const state = useAsync(() => {
+    if (!pokemonName) {
+      return
+    }
+    return (
+      fetchPokemon(pokemonName),
+      {status: pokemonName ? 'pending' : 'idle'},
+      [pokemonName]
+    )
+  })
 
   const {data: pokemon, status, error} = state
-  console.log(state)
 
   switch (status) {
     case 'idle':
-      return <span>Submit a pokemon</span>
+      return <span>submit a pokemon</span>
+
+      break
     case 'pending':
       return <PokemonInfoFallback name={pokemonName} />
+      break
     case 'rejected':
       throw error
+      break
     case 'resolved':
       return <PokemonDataView pokemon={pokemon} />
+      break
     default:
-      throw new Error('This should be impossible')
+      throw new error('this should be impossible')
   }
 }
 
-function App() {
+function App(params) {
   const [pokemonName, setPokemonName] = React.useState('')
 
-  function handleSubmit(newPokemonName) {
-    setPokemonName(newPokemonName)
-  }
-
-  function handleReset() {
-    setPokemonName('')
-  }
+  function handleSubmit(newPokemon) {}
 
   return (
     <div className="pokemon-info-app">
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
+
       <div className="pokemon-info">
         <PokemonErrorBoundary onReset={handleReset} resetKeys={[pokemonName]}>
           <PokemonInfo pokemonName={pokemonName} />
