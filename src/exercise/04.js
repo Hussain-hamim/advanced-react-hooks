@@ -5,7 +5,6 @@ import * as React from 'react'
 
 function MessagesDisplay({messages}) {
   const containerRef = React.useRef()
-  // 🐨 replace useEffect with useLayoutEffect
   React.useLayoutEffect(() => {
     containerRef.current.scrollTop = containerRef.current.scrollHeight
   })
@@ -15,6 +14,8 @@ function MessagesDisplay({messages}) {
       {messages.map((message, index, array) => (
         <div key={message.id}>
           <strong>{message.author}</strong>: <span>{message.content}</span>
+          {/* // if the current message isnt the last one a horizontal rule
+          <hr /> separate the messages */}
           {array.length - 1 === index ? null : <hr />}
         </div>
       ))}
@@ -33,17 +34,21 @@ function SlooooowSibling() {
   // how it impacts interactivity of the page before updates.
   React.useLayoutEffect(() => {
     // increase this number to see a more stark difference
-    sleep(600)
+    sleep(300)
   })
   return null
 }
 
 function App() {
   const [messages, setMessages] = React.useState(allMessages.slice(0, 8))
+  console.log(messages)
+
   const addMessage = () =>
+    // add more message to array if available in the allmessages
     messages.length < allMessages.length
       ? setMessages(allMessages.slice(0, messages.length + 1))
       : null
+
   const removeMessage = () =>
     messages.length > 0
       ? setMessages(allMessages.slice(0, messages.length - 1))
@@ -96,7 +101,10 @@ const allMessages = [
   `Leia: Don't just stand there. Try to brace it with something.`,
   `Luke: Wait a minute!`,
   `Luke: Threepio! Come in Threepio! Threepio! Where could he be?`,
+  //-----------------------the text before the colon.   the text after the colon
 ].map((m, i) => ({id: i, author: m.split(': ')[0], content: m.split(': ')[1]}))
+
+console.log(allMessages)
 
 // Here's the simple rule for when you should use useLayoutEffect:
 // If you are making observable changes to the DOM, then it should happen
