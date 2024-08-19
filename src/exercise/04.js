@@ -6,7 +6,7 @@ import * as React from 'react'
 function MessagesDisplay({messages}) {
   const containerRef = React.useRef()
   // 🐨 replace useEffect with useLayoutEffect
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     containerRef.current.scrollTop = containerRef.current.scrollHeight
   })
 
@@ -31,9 +31,9 @@ function sleep(time = 0) {
 function SlooooowSibling() {
   // try this with useLayoutEffect as well to see
   // how it impacts interactivity of the page before updates.
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     // increase this number to see a more stark difference
-    sleep(300)
+    sleep(600)
   })
   return null
 }
@@ -97,3 +97,7 @@ const allMessages = [
   `Luke: Wait a minute!`,
   `Luke: Threepio! Come in Threepio! Threepio! Where could he be?`,
 ].map((m, i) => ({id: i, author: m.split(': ')[0], content: m.split(': ')[1]}))
+
+// Here's the simple rule for when you should use useLayoutEffect:
+// If you are making observable changes to the DOM, then it should happen
+// in useLayoutEffect, otherwise useEffect.

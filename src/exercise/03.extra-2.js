@@ -46,6 +46,8 @@ function usePokemonCache() {
 function PokemonInfo({pokemonName: externalPokemonName}) {
   const [cache, dispatch] = usePokemonCache()
 
+  console.log(cache)
+
   const pokemonName = externalPokemonName?.toLowerCase()
   const {
     data: pokemon,
@@ -87,6 +89,9 @@ function PokemonInfo({pokemonName: externalPokemonName}) {
 
 function PreviousPokemon({onSelect}) {
   const [cache] = usePokemonCache()
+  console.log(Object.keys(cache))
+  console.log(Object.values(cache))
+
   return (
     <div>
       Previous Pokemon
