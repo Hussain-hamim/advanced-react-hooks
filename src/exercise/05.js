@@ -25,6 +25,13 @@ function MessagesDisplay({messages}, ref) {
   //   scrollToBottom,
   // }
 
+  // React.useLayoutEffect(() => {
+  //   ref.current = {
+  //     scrollToTop,
+  //     scrollToBottom,
+  //   }
+  // })
+
   // 🐨 call useImperativeHandle here with your ref and a callback function
   // that returns an object with scrollToTop and scrollToBottom
 
