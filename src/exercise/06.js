@@ -10,13 +10,24 @@ function useMedia(query, initialState = false) {
   const [state, setState] = React.useState(initialState)
   React.useDebugValue({query, state}, formatDebugValue)
 
+  // console.log(state)
+  // console.log(query)
+
   React.useEffect(() => {
+    // this ensure to update state only if the component is mounted, prevent memory leak
     let mounted = true
+
+    // it setup mediaQueriesList object (mql)
+    // check if the current media query is true or false by mql.matches method
     const mql = window.matchMedia(query)
+    console.log(mql)
+
+    // triggered if the media query matches or stop matching
     function onChange() {
       if (!mounted) {
         return
       }
+      // update the state with current match status (mql.matches)
       setState(Boolean(mql.matches))
     }
 
