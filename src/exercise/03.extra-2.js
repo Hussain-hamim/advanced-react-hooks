@@ -45,7 +45,6 @@ function usePokemonCache() {
 
 function PokemonInfo({pokemonName: externalPokemonName}) {
   const [cache, dispatch] = usePokemonCache()
-
   console.log(cache)
 
   const pokemonName = externalPokemonName?.toLowerCase()
@@ -62,11 +61,14 @@ function PokemonInfo({pokemonName: externalPokemonName}) {
   React.useEffect(() => {
     if (!pokemonName) {
       return
+      // if the pokemonName present in the cache: setData immediately using cache value
     } else if (cache[pokemonName]) {
       setData(cache[pokemonName])
+      // if not trigger a fetch request using the run fn from useAsync hook
     } else {
       run(
         fetchPokemon(pokemonName).then(pokemonData => {
+          // and once the data is fetched id dispatches the ADD_POKEMON action to store the fetched data in cache
           dispatch({type: 'ADD_POKEMON', pokemonName, pokemonData})
           return pokemonData
         }),
@@ -89,8 +91,8 @@ function PokemonInfo({pokemonName: externalPokemonName}) {
 
 function PreviousPokemon({onSelect}) {
   const [cache] = usePokemonCache()
-  console.log(Object.keys(cache))
-  console.log(Object.values(cache))
+  // console.log(Object.keys(cache))
+  // console.log(Object.values(cache))
 
   return (
     <div>
