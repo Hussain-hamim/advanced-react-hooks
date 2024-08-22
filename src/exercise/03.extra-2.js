@@ -68,7 +68,7 @@ function PokemonInfo({pokemonName: externalPokemonName}) {
     } else {
       run(
         fetchPokemon(pokemonName).then(pokemonData => {
-          // and once the data is fetched id dispatches the ADD_POKEMON action to store the fetched data in cache
+          // and once the data is fetched dispatches the ADD_POKEMON action to store the fetched data in cache
           dispatch({type: 'ADD_POKEMON', pokemonName, pokemonData})
           return pokemonData
         }),
